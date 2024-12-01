@@ -1,0 +1,80 @@
+CREATE DATABASE IF NOT EXISTS FindIT;
+
+CREATE TABLE IF NOT EXISTS user (
+id INT AUTO_INCREMENT PRIMARY KEY,
+name VARCHAR(100) NOT NULL,
+email VARCHAR(100) NOT NULL,
+password VARCHAR(64) NOT NULL,
+cpf VARCHAR(14) NOT NULL,
+is_active BOOL DEFAULT FALSE,
+created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+update_at DATETIME DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE IF NOT EXISTS category (
+id INT AUTO_INCREMENT PRIMARY KEY,
+name VARCHAR(100),
+is_active BOOL,
+created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+update_at DATETIME DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE IF NOT EXISTS item (
+id INT AUTO_INCREMENT PRIMARY KEY,
+name VARCHAR(100),
+description VARCHAR(100),
+is_active BOOL NOT NULL,
+category_id INT NOT NULL,
+registered_by INT NOT NULL,
+claimed_by INT NOT NULL,
+created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+updated_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+CONSTRAINT fk_item_category FOREIGN KEY (category_id) REFERENCES category(id),
+CONSTRAINT fk_item_user_registrator FOREIGN KEY (registered_by) REFERENCES user(id),
+CONSTRAINT fk_item_user_claimer FOREIGN KEY (claimed_by) REFERENCES user(id)
+);
+
+CREATE TABLE IF NOT EXISTS action_type (
+id INT AUTO_INCREMENT PRIMARY KEY,
+description VARCHAR(100),
+created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE IF NOT EXISTS item_history (
+id INT AUTO_INCREMENT PRIMARY KEY,
+user_id INT NOT NULL,
+action_type INT NOT NULL,
+item_id INT NOT NULL,
+item_name VARCHAR(100),
+item_description VARCHAR(100),
+item_created_at DATETIME,
+item_updated_at DATETIME,
+item_is_active BOOL NOT NULL,
+item_category_id INT NOT NULL,
+item_registered_by INT NOT NULL,
+item_claimed_by INT NOT NULL,
+created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+CONSTRAINT fk_item_history_user FOREIGN KEY (user_id) REFERENCES user(id),
+CONSTRAINT fk_item_history_action_type FOREIGN KEY (action_type) REFERENCES action_type(id),
+CONSTRAINT fk_item_history_item FOREIGN KEY (item_id) REFERENCES item(id)
+);
+
+CREATE TABLE IF NOT EXISTS permission (
+id INT AUTO_INCREMENT PRIMARY KEY,
+`key` VARCHAR(100) NOT NULL,
+description VARCHAR(100) NOT NULL,
+created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE IF NOT EXISTS user_permission (
+id INT AUTO_INCREMENT PRIMARY KEY,
+user_id INT NOT NULL,
+permission_id INT NOT NULL,
+is_active BOOL NOT NULL,
+created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+updated_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+CONSTRAINT fk_user_permission_user FOREIGN KEY (user_id) REFERENCES user(id),
+CONSTRAINT fk_user_permission_permission FOREIGN KEY (permission_id) REFERENCES permission(id)
+);
