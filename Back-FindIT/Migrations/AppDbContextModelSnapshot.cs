@@ -59,10 +59,6 @@ namespace Back_FindIT.Migrations
                         .IsRequired()
                         .HasColumnType("longblob");
 
-                    b.Property<byte[]>("PasswordSalt")
-                        .IsRequired()
-                        .HasColumnType("longblob");
-
                     b.Property<DateTime>("UpdatedAt")
                         .HasColumnType("datetime(6)");
 

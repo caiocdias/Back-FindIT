@@ -10,6 +10,10 @@ namespace Back_FindIT.Models
 {
     public class User
     {
+        private const int SaltSize = 16;  // 16 bytes de salt
+        private const int KeySize = 32;   // 32 bytes para o hash
+        private const int Iterations = 100_000; // Número de iterações PBKDF2
+
         [Key]
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public int Id { get; set; }
@@ -25,9 +29,6 @@ namespace Back_FindIT.Models
 
         [Required]
         public byte[] PasswordHash { get; set; } = new byte[0];
-
-        [Required]
-        public byte[] PasswordSalt { get; set; } = new byte[0];
 
         [Required]
         [StringLength(14)]
@@ -46,23 +47,55 @@ namespace Back_FindIT.Models
             UpdatedAt = DateTime.UtcNow;
         }
 
+        /// <summary>
+        /// Gera um hash seguro para a senha e a armazena.
+        /// O salt é gerado e incluído na própria senha hasheada.
+        /// </summary>
         public void SetPassword(string password)
         {
-            using (var hmac = new HMACSHA512())
+            using (var rng = RandomNumberGenerator.Create())
             {
-                PasswordSalt = hmac.Key; // Armazena o salt gerado
-                PasswordHash = hmac.ComputeHash(Encoding.UTF8.GetBytes(password)); // Cria o hash
+                // Gera um salt aleatório
+                byte[] salt = new byte[SaltSize];
+                rng.GetBytes(salt);
+
+                // Usa PBKDF2 para gerar um hash seguro
+                using (var pbkdf2 = new Rfc2898DeriveBytes(password, salt, Iterations, HashAlgorithmName.SHA512))
+                {
+                    byte[] key = pbkdf2.GetBytes(KeySize);
+
+                    // Armazena o salt concatenado com o hash
+                    PasswordHash = new byte[SaltSize + KeySize];
+                    Array.Copy(salt, 0, PasswordHash, 0, SaltSize);
+                    Array.Copy(key, 0, PasswordHash, SaltSize, KeySize);
+                }
             }
         }
 
+        /// <summary>
+        /// Valida a senha comparando com o hash armazenado.
+        /// </summary>
         public bool ValidatePassword(string password)
         {
-            if (PasswordSalt == null || PasswordHash == null) return false;
+            if (PasswordHash == null || PasswordHash.Length != SaltSize + KeySize)
+                return false;
 
-            using (var hmac = new HMACSHA512(PasswordSalt))
+            // Extrai o salt do hash armazenado
+            byte[] salt = new byte[SaltSize];
+            Array.Copy(PasswordHash, 0, salt, 0, SaltSize);
+
+            // Recalcula o hash usando o salt extraído
+            using (var pbkdf2 = new Rfc2898DeriveBytes(password, salt, Iterations, HashAlgorithmName.SHA512))
             {
-                var computedHash = hmac.ComputeHash(Encoding.UTF8.GetBytes(password));
-                return StructuralComparisons.StructuralEqualityComparer.Equals(computedHash, PasswordHash);
+                byte[] computedKey = pbkdf2.GetBytes(KeySize);
+
+                // Compara os hashes de forma segura
+                for (int i = 0; i < KeySize; i++)
+                {
+                    if (computedKey[i] != PasswordHash[SaltSize + i])
+                        return false;
+                }
+                return true;
             }
         }
     }

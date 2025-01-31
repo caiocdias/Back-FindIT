@@ -1,12 +1,8 @@
 ﻿using Back_FindIT.Data;
 using Back_FindIT.Dtos;
 using Back_FindIT.Models;
-
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using System.Threading.Tasks;
-
 
 namespace Back_FindIT.Controllers
 {
@@ -21,6 +17,7 @@ namespace Back_FindIT.Controllers
             _appDbContext = appDbContext;
         }
 
+        /// Adiciona um novo usuário ao sistema.
         [HttpPost("AddUser")]
         public async Task<IActionResult> AddUser([FromBody] UserRegisterDto userDto)
         {
@@ -28,11 +25,14 @@ namespace Back_FindIT.Controllers
                 return BadRequest("Dados inválidos. A senha não pode ser vazia.");
 
             // Verifica se o email já existe no banco
-            var existingUser = await _appDbContext.User
-                .AsNoTracking()
-                .FirstOrDefaultAsync(u => u.Email == userDto.Email);
+            var existingUser = await _appDbContext.User.AsNoTracking().FirstOrDefaultAsync(u => u.Email == userDto.Email);
             if (existingUser != null)
                 return Conflict("Já existe um usuário cadastrado com esse e-mail.");
+
+            // Verifica se o CPF já existe
+            var existingCpf = await _appDbContext.User.AsNoTracking().FirstOrDefaultAsync(u => u.Cpf == userDto.Cpf);
+            if (existingCpf != null)
+                return Conflict("Já existe um usuário cadastrado com esse CPF.");
 
             var user = new User
             {
@@ -47,7 +47,7 @@ namespace Back_FindIT.Controllers
             _appDbContext.User.Add(user);
             await _appDbContext.SaveChangesAsync();
 
-            return Ok(new { message = "Usuário cadastrado com sucesso!" });
+            return Ok(new { message = "Usuário cadastrado com sucesso!", userId = user.Id });
         }
     }
 }
