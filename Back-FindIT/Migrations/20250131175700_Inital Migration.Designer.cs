@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Back_FindIT.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20250131024248_Initial Migration")]
-    partial class InitialMigration
+    [Migration("20250131175700_Inital Migration")]
+    partial class InitalMigration
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -59,10 +59,6 @@ namespace Back_FindIT.Migrations
                         .HasColumnType("varchar(100)");
 
                     b.Property<byte[]>("PasswordHash")
-                        .IsRequired()
-                        .HasColumnType("longblob");
-
-                    b.Property<byte[]>("PasswordSalt")
                         .IsRequired()
                         .HasColumnType("longblob");
 
