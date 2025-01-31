@@ -1,0 +1,6 @@
+@Back_FindIT_HostAddress = http://localhost:5058
+
+GET {{Back_FindIT_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
