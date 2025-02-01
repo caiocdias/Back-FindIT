@@ -26,6 +26,24 @@ namespace Back_FindIT.Data
                 .WithMany(p => p.UserPermissions)
                 .HasForeignKey(up => up.PermissionId)
                 .OnDelete(DeleteBehavior.Cascade);
+
+            modelBuilder.Entity<Item>()
+                .HasOne(i => i.Category)
+                .WithMany()
+                .HasForeignKey(i => i.CategoryId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            modelBuilder.Entity<Item>()
+                .HasOne(i => i.RegisteredUser) // Um Item tem um RegisteredUser
+                .WithMany() // RegisteredUser pode ter vários Itens, mas não há navegação explícita
+                .HasForeignKey(i => i.RegisteredBy) // Chave estrangeira em Item
+                .OnDelete(DeleteBehavior.Restrict);
+
+            modelBuilder.Entity<Item>()
+                .HasOne(i => i.ClaimedUser)
+                .WithMany()
+                .HasForeignKey(i => i.ClaimedBy)
+                .OnDelete(DeleteBehavior.Restrict);
         }
     }
 }
