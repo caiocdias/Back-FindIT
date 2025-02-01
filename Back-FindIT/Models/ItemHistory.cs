@@ -14,7 +14,7 @@ namespace Back_FindIT.Models
         public int UserId { get; set; }
 
         [Required]
-        public int ActionTypeId { get; set; }
+        public ActionType ActionType { get; set; }
 
         [Required]
         public int ItemId { get; set; }
@@ -46,9 +46,6 @@ namespace Back_FindIT.Models
 
         [ForeignKey("UserId")]
         public virtual User User { get; set; } = null!;
-
-        [ForeignKey("ActionTypeId")]
-        public virtual ActionType ActionType { get; set; } = null!;
 
         [ForeignKey("ItemId")]
         public virtual Item Item { get; set; } = null!;
