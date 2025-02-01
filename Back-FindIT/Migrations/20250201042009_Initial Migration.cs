@@ -16,24 +16,6 @@ namespace Back_FindIT.Migrations
                 .Annotation("MySql:CharSet", "utf8mb4");
 
             migrationBuilder.CreateTable(
-                name: "ActionTypes",
-                columns: table => new
-                {
-                    Id = table.Column<int>(type: "int", nullable: false)
-                        .Annotation("MySql:ValueGenerationStrategy", MySqlValueGenerationStrategy.IdentityColumn),
-                    Name = table.Column<string>(type: "varchar(100)", maxLength: 100, nullable: false)
-                        .Annotation("MySql:CharSet", "utf8mb4"),
-                    CreatedAt = table.Column<DateTime>(type: "datetime(6)", nullable: false)
-                        .Annotation("MySql:ValueGenerationStrategy", MySqlValueGenerationStrategy.ComputedColumn),
-                    UpdatedAt = table.Column<DateTime>(type: "datetime(6)", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_ActionTypes", x => x.Id);
-                })
-                .Annotation("MySql:CharSet", "utf8mb4");
-
-            migrationBuilder.CreateTable(
                 name: "Categories",
                 columns: table => new
                 {
@@ -176,7 +158,7 @@ namespace Back_FindIT.Migrations
                     Id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("MySql:ValueGenerationStrategy", MySqlValueGenerationStrategy.IdentityColumn),
                     UserId = table.Column<int>(type: "int", nullable: false),
-                    ActionTypeId = table.Column<int>(type: "int", nullable: false),
+                    ActionType = table.Column<int>(type: "int", nullable: false),
                     ItemId = table.Column<int>(type: "int", nullable: false),
                     ItemName = table.Column<string>(type: "varchar(100)", maxLength: 100, nullable: false)
                         .Annotation("MySql:CharSet", "utf8mb4"),
@@ -195,12 +177,6 @@ namespace Back_FindIT.Migrations
                 {
                     table.PrimaryKey("PK_ItemHistories", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_ItemHistories_ActionTypes_ActionTypeId",
-                        column: x => x.ActionTypeId,
-                        principalTable: "ActionTypes",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
-                    table.ForeignKey(
                         name: "FK_ItemHistories_Items_ItemId",
                         column: x => x.ItemId,
                         principalTable: "Items",
@@ -214,11 +190,6 @@ namespace Back_FindIT.Migrations
                         onDelete: ReferentialAction.Restrict);
                 })
                 .Annotation("MySql:CharSet", "utf8mb4");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_ItemHistories_ActionTypeId",
-                table: "ItemHistories",
-                column: "ActionTypeId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_ItemHistories_ItemId",
@@ -264,9 +235,6 @@ namespace Back_FindIT.Migrations
 
             migrationBuilder.DropTable(
                 name: "UserPermissions");
-
-            migrationBuilder.DropTable(
-                name: "ActionTypes");
 
             migrationBuilder.DropTable(
                 name: "Items");
