@@ -12,6 +12,8 @@ namespace Back_FindIT.Data
         public DbSet<ActionType> ActionTypes { get; set; }
         public DbSet<Category> Categories { get; set; }
         public DbSet<UserPermission> UserPermissions { get; set; }
+        public DbSet<Item> Items { get; set; }
+        public DbSet<ItemHistory> ItemHistories { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -44,6 +46,24 @@ namespace Back_FindIT.Data
                 .WithMany()
                 .HasForeignKey(i => i.ClaimedBy)
                 .OnDelete(DeleteBehavior.Restrict);
+
+            modelBuilder.Entity<ItemHistory>()
+                .HasOne(ih => ih.User)
+                .WithMany()
+                .HasForeignKey(ih => ih.UserId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            modelBuilder.Entity<ItemHistory>()
+                .HasOne(ih => ih.ActionType)
+                .WithMany()
+                .HasForeignKey(ih => ih.ActionTypeId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            modelBuilder.Entity<ItemHistory>()
+                .HasOne(ih => ih.Item)
+                .WithMany()
+                .HasForeignKey(ih => ih.ItemId)
+                .OnDelete(DeleteBehavior.Cascade);
         }
     }
 }
