@@ -1,8 +1,10 @@
 ﻿using Back_FindIT.Dtos;
 using Back_FindIT.Models;
+using Back_FindIT.Services;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Back_FindIT.Data;
+using Pomelo.EntityFrameworkCore.MySql.Storage.Internal;
 
 namespace Back_FindIT.Controllers
 {
@@ -10,45 +12,58 @@ namespace Back_FindIT.Controllers
     [ApiController]
     public class UserController : ControllerBase
     {
-        private readonly AppDbContext _appDbContext;
+        private readonly UserService _userService;
 
-        public UserController(AppDbContext appDbContext)
+        public UserController(UserService userService)
         {
-            _appDbContext = appDbContext;
+            _userService = userService;
         }
 
-        /// Adiciona um novo usuário ao sistema.
         [HttpPost("AddUser")]
         public async Task<IActionResult> AddUser([FromBody] UserRegisterDto userDto)
         {
-            if (userDto == null || string.IsNullOrWhiteSpace(userDto.Password))
-                return BadRequest("Dados inválidos. A senha não pode ser vazia.");
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState);
 
-            // Verifica se o email já existe no banco
-            var existingUser = await _appDbContext.Users.AsNoTracking().FirstOrDefaultAsync(u => u.Email == userDto.Email);
-            if (existingUser != null)
-                return Conflict("Já existe um usuário cadastrado com esse e-mail.");
-
-            // Verifica se o CPF já existe
-            var existingCpf = await _appDbContext.Users.AsNoTracking().FirstOrDefaultAsync(u => u.Cpf == userDto.Cpf);
-            if (existingCpf != null)
-                return Conflict("Já existe um usuário cadastrado com esse CPF.");
-
-            var user = new User
+            try
             {
-                Name = userDto.Name,
-                Email = userDto.Email,
-                Cpf = userDto.Cpf,
-                IsActive = true
-            };
-
-            user.SetPassword(userDto.Password);
-            user.SetUpdatedAt();
-
-            _appDbContext.Users.Add(user);
-            await _appDbContext.SaveChangesAsync();
-
-            return Ok(new { message = "Usuário cadastrado com sucesso!", userId = user.Id });
+                var user = await _userService.AddUserAsync(userDto);
+                return Ok(user);
+            }
+            catch (InvalidOperationException ex)
+            {
+                return Conflict(new { message = ex.Message });
+            }
         }
+
+        [HttpGet("GetUserById/{id}")]
+        public async Task<IActionResult> GetUserById(int id)
+        {
+            var user = await _userService.GetUserById(id);
+            if (user == null)
+                return NotFound();
+
+            return Ok(user);
+        }
+
+        [HttpGet("GetUserByEmail/{email}")]
+        public async Task<IActionResult> GetUserByEmail(string email)
+        {
+            var user = await _userService.GetUserByEmailAsync(email);
+
+            if (user == null)
+                return NotFound("Usuário não encontrado.");
+
+            return Ok(user);
+        }
+
+        [HttpGet("GetActiveUsers")]
+        public async Task<IActionResult> GetUsers()
+        {
+            var users = await _userService.GetUsers();
+
+            return Ok(users);
+        }
+
     }
 }
