@@ -1,10 +1,6 @@
-﻿using Microsoft.EntityFrameworkCore;
-using System;
-using System.Collections;
-using System.ComponentModel.DataAnnotations;
+﻿using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Security.Cryptography;
-using System.Text;
 
 namespace Back_FindIT.Models
 {
@@ -36,7 +32,8 @@ namespace Back_FindIT.Models
 
         public bool IsActive { get; set; } = false;
 
-        [Column("created_at", TypeName = "DATETIME"), Required]
+        public virtual ICollection<UserPermission> UserPermissions { get; set; } = new HashSet<UserPermission>();
+
         [DatabaseGenerated(DatabaseGeneratedOption.Computed)]
         public DateTime CreatedAt { get; set; }
 
@@ -44,13 +41,9 @@ namespace Back_FindIT.Models
 
         public void SetUpdatedAt()
         {
-            UpdatedAt = DateTime.UtcNow;
+            UpdatedAt = DateTime.Now;
         }
 
-        /// <summary>
-        /// Gera um hash seguro para a senha e a armazena.
-        /// O salt é gerado e incluído na própria senha hasheada.
-        /// </summary>
         public void SetPassword(string password)
         {
             using (var rng = RandomNumberGenerator.Create())
@@ -72,9 +65,6 @@ namespace Back_FindIT.Models
             }
         }
 
-        /// <summary>
-        /// Valida a senha comparando com o hash armazenado.
-        /// </summary>
         public bool ValidatePassword(string password)
         {
             if (PasswordHash == null || PasswordHash.Length != SaltSize + KeySize)
