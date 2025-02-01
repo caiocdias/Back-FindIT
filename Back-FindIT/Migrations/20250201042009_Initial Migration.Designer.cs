@@ -12,7 +12,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Back_FindIT.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20250201035842_Initial Migration")]
+    [Migration("20250201042009_Initial Migration")]
     partial class InitialMigration
     {
         /// <inheritdoc />
@@ -24,33 +24,6 @@ namespace Back_FindIT.Migrations
                 .HasAnnotation("Relational:MaxIdentifierLength", 64);
 
             MySqlModelBuilderExtensions.AutoIncrementColumns(modelBuilder);
-
-            modelBuilder.Entity("Back_FindIT.Models.ActionType", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<DateTime>("CreatedAt")
-                        .ValueGeneratedOnAddOrUpdate()
-                        .HasColumnType("datetime(6)");
-
-                    MySqlPropertyBuilderExtensions.UseMySqlComputedColumn(b.Property<DateTime>("CreatedAt"));
-
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasMaxLength(100)
-                        .HasColumnType("varchar(100)");
-
-                    b.Property<DateTime>("UpdatedAt")
-                        .HasColumnType("datetime(6)");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("ActionTypes");
-                });
 
             modelBuilder.Entity("Back_FindIT.Models.Category", b =>
                 {
@@ -139,7 +112,7 @@ namespace Back_FindIT.Migrations
 
                     MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<int>("Id"));
 
-                    b.Property<int>("ActionTypeId")
+                    b.Property<int>("ActionType")
                         .HasColumnType("int");
 
                     b.Property<DateTime>("CreatedAt")
@@ -182,8 +155,6 @@ namespace Back_FindIT.Migrations
                         .HasColumnType("int");
 
                     b.HasKey("Id");
-
-                    b.HasIndex("ActionTypeId");
 
                     b.HasIndex("ItemId");
 
@@ -332,12 +303,6 @@ namespace Back_FindIT.Migrations
 
             modelBuilder.Entity("Back_FindIT.Models.ItemHistory", b =>
                 {
-                    b.HasOne("Back_FindIT.Models.ActionType", "ActionType")
-                        .WithMany()
-                        .HasForeignKey("ActionTypeId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
                     b.HasOne("Back_FindIT.Models.Item", "Item")
                         .WithMany()
                         .HasForeignKey("ItemId")
@@ -349,8 +314,6 @@ namespace Back_FindIT.Migrations
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
-
-                    b.Navigation("ActionType");
 
                     b.Navigation("Item");
 
