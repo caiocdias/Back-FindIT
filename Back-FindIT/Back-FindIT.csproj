@@ -10,13 +10,6 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Compile Remove="NovaPasta\**" />
-    <Content Remove="NovaPasta\**" />
-    <EmbeddedResource Remove="NovaPasta\**" />
-    <None Remove="NovaPasta\**" />
-  </ItemGroup>
-
-  <ItemGroup>
     <PackageReference Include="Microsoft.EntityFrameworkCore" Version="8.0.2" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="8.0.2">
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
