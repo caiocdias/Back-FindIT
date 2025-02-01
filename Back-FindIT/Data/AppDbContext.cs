@@ -36,9 +36,9 @@ namespace Back_FindIT.Data
                 .OnDelete(DeleteBehavior.Cascade);
 
             modelBuilder.Entity<Item>()
-                .HasOne(i => i.RegisteredUser) // Um Item tem um RegisteredUser
-                .WithMany() // RegisteredUser pode ter vários Itens, mas não há navegação explícita
-                .HasForeignKey(i => i.RegisteredBy) // Chave estrangeira em Item
+                .HasOne(i => i.RegisteredUser)
+                .WithMany()
+                .HasForeignKey(i => i.RegisteredBy)
                 .OnDelete(DeleteBehavior.Restrict);
 
             modelBuilder.Entity<Item>()
