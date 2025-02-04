@@ -1,5 +1,5 @@
 ﻿using Back_FindIT.Data;
-using Back_FindIT.Dtos;
+using Back_FindIT.Dtos.User;
 using Back_FindIT.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -121,6 +121,63 @@ namespace Back_FindIT.Services
                 UpdatedAt = user.UpdatedAt,
                 UserPermissions = user.UserPermissions
             }).ToList();
+        }
+
+        public async Task<bool> SoftDeleteUser(int userId)
+        {
+            var user = await _appDbContext.Users.FirstOrDefaultAsync(u => u.Id == userId);
+
+            if (user == null)
+                return false;
+
+            if (!user.IsActive)
+                return true;
+
+
+            user.IsActive = false;
+            user.SetUpdatedAt();
+
+            _appDbContext.Users.Update(user);
+            await _appDbContext.SaveChangesAsync();
+
+            return true;
+        }
+
+        public async Task<UserReturnDto?> UpdateUserAsync(int id, UserUpdateDto userDto)
+        {
+            var user = await _appDbContext.Users.FirstOrDefaultAsync(u => u.Id == id);
+
+            if (user == null)
+                return null;
+
+            if (!user.IsActive)
+                throw new UnauthorizedAccessException("Usuário desativado.");
+
+            if (await _appDbContext.Users.AnyAsync(u => u.Email == userDto.Email && u.Id != id))
+                throw new InvalidOperationException("Já existe um usuário cadastrado com esse e-mail.");
+
+            if (await _appDbContext.Users.AnyAsync(u => u.Cpf == userDto.Cpf && u.Id != id))
+                throw new InvalidOperationException("Já existe um usuário cadastrado com esse CPF.");
+
+            user.Name = userDto.Name;
+            user.Email = userDto.Email;
+            user.Cpf = userDto.Cpf;
+            user.SetUpdatedAt();
+
+            _appDbContext.Users.Update(user);
+            await _appDbContext.SaveChangesAsync();
+
+            return new UserReturnDto
+            {
+                Id = user.Id,
+                Name = user.Name,
+                Email = user.Email,
+                Cpf = user.Cpf,
+                IsActive = user.IsActive,
+                CreatedAt = user.CreatedAt,
+                UpdatedAt = user.UpdatedAt,
+                UserPermissions = user.UserPermissions
+            };
         }
     }
 }
