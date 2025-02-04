@@ -10,7 +10,7 @@ namespace Back_FindIT.Models
     {
         private const int SaltSize = 16;  // 16 bytes de salt
         private const int KeySize = 32;   // 32 bytes para o hash
-        private const int Iterations = 100_000; // Número de iterações PBKDF2
+        private const int Iterations = 100_000; // Número de iterações PBKDF2 teste
 
         [Key]
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
