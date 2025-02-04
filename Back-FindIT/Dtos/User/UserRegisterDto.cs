@@ -1,6 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-namespace Back_FindIT.Dtos
+namespace Back_FindIT.Dtos.User
 {
     public class UserRegisterDto
     {
