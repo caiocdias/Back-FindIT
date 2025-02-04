@@ -1,10 +1,10 @@
-﻿using Back_FindIT.Dtos;
-using Back_FindIT.Models;
+﻿using Back_FindIT.Models;
 using Back_FindIT.Services;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Back_FindIT.Data;
 using Pomelo.EntityFrameworkCore.MySql.Storage.Internal;
+using Back_FindIT.Dtos.User;
 
 namespace Back_FindIT.Controllers
 {
@@ -40,8 +40,13 @@ namespace Back_FindIT.Controllers
         public async Task<IActionResult> GetUserById(int id)
         {
             var user = await _userService.GetUserById(id);
+
             if (user == null)
-                return NotFound();
+                return NotFound(new { message = "Usuário não encontrado." });
+
+            if (!user.IsActive)
+                return StatusCode(403, new { message = "Usuário desativado." });
+
 
             return Ok(user);
         }
@@ -52,7 +57,11 @@ namespace Back_FindIT.Controllers
             var user = await _userService.GetUserByEmailAsync(email);
 
             if (user == null)
-                return NotFound("Usuário não encontrado.");
+                return NotFound(new { message = "Usuário não encontrado." });
+
+            if (!user.IsActive)
+                return StatusCode(403, new { message = "Usuário desativado." });
+
 
             return Ok(user);
         }
@@ -65,5 +74,41 @@ namespace Back_FindIT.Controllers
             return Ok(users);
         }
 
+        [HttpDelete("SoftDelete/{id}")]
+        public async Task<IActionResult> SoftDeleteUser(int id)
+        {
+            var result = await _userService.SoftDeleteUser(id);
+
+            if (!result)
+                return NotFound(new { message = "Usuário não encontrado." });
+
+            return Ok(new { message = "Usuário desativado com sucesso." });
+        }
+
+        [HttpPut("Update/{id}")]
+        public async Task<IActionResult> UpdateUser(int id, [FromBody] UserUpdateDto userDto)
+        {
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState);
+
+            try
+            {
+                var updatedUser = await _userService.UpdateUserAsync(id, userDto);
+
+                if (updatedUser == null)
+                    return NotFound(new { message = "Usuário não encontrado." });
+
+                return Ok(updatedUser);
+            }
+            catch (InvalidOperationException ex)
+            {
+                return Conflict(new { message = ex.Message });
+            }
+            catch (UnauthorizedAccessException ex)
+            {
+                return StatusCode(403, new { message = ex.Message });
+            }
+
+        }
     }
 }
