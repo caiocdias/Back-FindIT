@@ -1,9 +1,5 @@
-﻿using Back_FindIT.Models;
-using Back_FindIT.Services;
+﻿using Back_FindIT.Services;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-using Back_FindIT.Data;
-using Pomelo.EntityFrameworkCore.MySql.Storage.Internal;
 using Back_FindIT.Dtos.User;
 
 namespace Back_FindIT.Controllers
@@ -39,7 +35,7 @@ namespace Back_FindIT.Controllers
         [HttpGet("GetUserById/{id}")]
         public async Task<IActionResult> GetUserById(int id)
         {
-            var user = await _userService.GetUserById(id);
+            var user = await _userService.GetUserByIdAsync(id);
 
             if (user == null)
                 return NotFound(new { message = "Usuário não encontrado." });
@@ -69,7 +65,7 @@ namespace Back_FindIT.Controllers
         [HttpGet("GetActiveUsers")]
         public async Task<IActionResult> GetUsers()
         {
-            var users = await _userService.GetUsers();
+            var users = await _userService.GetUsersAsync();
 
             return Ok(users);
         }
@@ -77,7 +73,7 @@ namespace Back_FindIT.Controllers
         [HttpDelete("SoftDelete/{id}")]
         public async Task<IActionResult> SoftDeleteUser(int id)
         {
-            var result = await _userService.SoftDeleteUser(id);
+            var result = await _userService.SoftDeleteUserAsync(id);
 
             if (!result)
                 return NotFound(new { message = "Usuário não encontrado." });
