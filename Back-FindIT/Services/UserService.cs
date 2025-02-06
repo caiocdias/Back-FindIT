@@ -53,7 +53,7 @@ namespace Back_FindIT.Services
             };
         }
 
-        public async Task<UserReturnDto?> GetUserById(int id)
+        public async Task<UserReturnDto?> GetUserByIdAsync(int id)
         {
             var user = await _appDbContext.Users
                 .Include(u => u.UserPermissions)
@@ -101,7 +101,7 @@ namespace Back_FindIT.Services
             };
         }
 
-        public async Task<ICollection<UserReturnDto>> GetUsers()
+        public async Task<ICollection<UserReturnDto>> GetUsersAsync()
         {
             var users = await _appDbContext.Users
                 .Where(u => u.IsActive)
@@ -123,7 +123,7 @@ namespace Back_FindIT.Services
             }).ToList();
         }
 
-        public async Task<bool> SoftDeleteUser(int userId)
+        public async Task<bool> SoftDeleteUserAsync(int userId)
         {
             var user = await _appDbContext.Users.FirstOrDefaultAsync(u => u.Id == userId);
 

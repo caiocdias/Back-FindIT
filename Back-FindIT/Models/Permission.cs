@@ -1,5 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using System.Text.Json.Serialization;
 
 namespace Back_FindIT.Models
 {
@@ -16,6 +17,7 @@ namespace Back_FindIT.Models
         [Required]
         [StringLength(100)]
         public string Description { get; set; }
+
         public virtual ICollection<UserPermission> UserPermissions { get; set; } = new HashSet<UserPermission>();
 
         [DatabaseGenerated(DatabaseGeneratedOption.Computed)]
