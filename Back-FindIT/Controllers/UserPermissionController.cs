@@ -33,5 +33,45 @@ namespace Back_FindIT.Controllers
             }
         }
 
+        [HttpDelete("RemoveUserPermission")]
+        public async Task<IActionResult> RemoveUserPermission([FromBody] UserPermissionDto userPermissionDto)
+        {
+            try
+            {
+                bool success = await _userPermissionService.RemoveUserPermissionAsync(userPermissionDto.UserId, userPermissionDto.PermissionId);
+
+                if (!success)
+                    return NotFound(new { message = "Relação entre usuário e permissão não encontrada." });
+
+                return Ok(new { message = "Permissão removida com sucesso." });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { message = ex.Message });
+            }
+        }
+
+        [HttpGet("GetPermissionsByUser/{userId}")]
+        public async Task<IActionResult> GetPermissionsByUser(int userId)
+        {
+            var permissions = await _userPermissionService.GetPermissionsByUserAsync(userId);
+
+            if (permissions == null || !permissions.Any())
+                return NotFound(new { message = "Nenhuma permissão encontrada para este usuário." });
+
+            return Ok(permissions);
+        }
+
+        [HttpGet("GetUsersByPermission/{permissionId}")]
+        public async Task<IActionResult> GetUsersByPermission(int permissionId)
+        {
+            var users = await _userPermissionService.GetUsersByPermissionAsync(permissionId);
+
+            if (users == null || !users.Any())
+                return NotFound(new { message = "Nenhum usuário encontrado para esta permissão." });
+
+            return Ok(users);
+        }
+
     }
 }
