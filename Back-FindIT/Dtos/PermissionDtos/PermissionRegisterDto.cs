@@ -1,4 +1,4 @@
-﻿namespace Back_FindIT.Dtos.Permission
+﻿namespace Back_FindIT.Dtos.PermissionDtos
 {
     public class PermissionRegisterDto
     {

@@ -1,6 +1,6 @@
 ﻿using Back_FindIT.Services;
 using Microsoft.AspNetCore.Mvc;
-using Back_FindIT.Dtos.User;
+using Back_FindIT.Dtos.UserDtos;
 
 namespace Back_FindIT.Controllers
 {

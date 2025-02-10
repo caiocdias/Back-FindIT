@@ -18,6 +18,7 @@ namespace Back_FindIT.Models
         [StringLength(100)]
         public string Description { get; set; }
 
+        [JsonIgnore]
         public virtual ICollection<UserPermission> UserPermissions { get; set; } = new HashSet<UserPermission>();
 
         [DatabaseGenerated(DatabaseGeneratedOption.Computed)]

@@ -1,5 +1,5 @@
 ﻿using Back_FindIT.Data;
-using Back_FindIT.Dtos.User;
+using Back_FindIT.Dtos.UserDtos;
 using Back_FindIT.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;

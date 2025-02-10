@@ -7,6 +7,7 @@ namespace Back_FindIT.Models
     public class UserPermission
     {
         [Key]
+        [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public int Id { get; set; }
 
         [Required]

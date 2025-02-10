@@ -1,4 +1,5 @@
-﻿using Back_FindIT.Dtos.Permission;
+﻿using Back_FindIT.Dtos.PermissionDtos;
+using Back_FindIT.Dtos.UserPermissionDtos;
 using Back_FindIT.Models;
 using Back_FindIT.Services;
 using Microsoft.AspNetCore.Mvc;
@@ -40,6 +41,28 @@ namespace Back_FindIT.Controllers
                 return NotFound(new { message = "Permissão não encontrada." });
 
             return Ok(permission);
+        }
+
+
+        [HttpPut("UpdatePermission/{id}")]
+        public async Task<IActionResult> UpdatePermission(int id, [FromBody] PermissionRegisterDto dto)
+        {
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState);
+
+            try
+            {
+                var updatedPermission = await _permissionService.UpdatePermissionAsync(id, dto);
+
+                if (updatedPermission == null)
+                    return NotFound(new { message = "Permissão não encontrada." });
+
+                return Ok(updatedPermission);
+            }
+            catch (InvalidOperationException ex)
+            {
+                return Conflict(new { message = ex.Message });
+            }
         }
     }
 }

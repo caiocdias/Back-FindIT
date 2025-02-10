@@ -3,6 +3,7 @@ using Back_FindIT.Dtos;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Security.Cryptography;
+using System.Text.Json.Serialization;
 
 namespace Back_FindIT.Models
 {
@@ -34,6 +35,7 @@ namespace Back_FindIT.Models
 
         public bool IsActive { get; set; } = false;
 
+        [JsonIgnore]
         public virtual ICollection<UserPermission> UserPermissions { get; set; } = new HashSet<UserPermission>();
 
         [DatabaseGenerated(DatabaseGeneratedOption.Computed)]
