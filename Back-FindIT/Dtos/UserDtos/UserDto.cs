@@ -1,4 +1,4 @@
-﻿namespace Back_FindIT.Dtos.User
+﻿namespace Back_FindIT.Dtos.UserDtos
 {
     public class UserDto
     {
