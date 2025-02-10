@@ -1,6 +1,6 @@
-﻿using Back_FindIT.Dtos.User;
+﻿using Back_FindIT.Dtos.UserDtos;
 
-namespace Back_FindIT.Dtos.Permission
+namespace Back_FindIT.Dtos.PermissionDtos
 {
     public class PermissionReturnDto
     {
