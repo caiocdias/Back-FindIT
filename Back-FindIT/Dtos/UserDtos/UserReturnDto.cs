@@ -1,6 +1,6 @@
 ﻿using Back_FindIT.Models;
 
-namespace Back_FindIT.Dtos.User
+namespace Back_FindIT.Dtos.UserDtos
 {
     public class UserReturnDto
     {
