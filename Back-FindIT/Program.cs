@@ -11,6 +11,9 @@ builder.Services.AddControllers();
 builder.Services.AddScoped<UserService>();
 builder.Services.AddScoped<PermissionService>();
 builder.Services.AddScoped<UserPermissionService>();
+builder.Services.AddScoped<CategoryService>();
+builder.Services.AddScoped<ItemService>();
+builder.Services.AddScoped<ItemHistoryService>();
 
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();

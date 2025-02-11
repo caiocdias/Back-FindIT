@@ -1,4 +1,5 @@
 ﻿using Back_FindIT.Dtos.CategoryDtos;
+using Back_FindIT.Dtos.UserDtos;
 using Back_FindIT.Services;
 using Microsoft.AspNetCore.Mvc;
 
@@ -32,19 +33,51 @@ namespace Back_FindIT.Controllers
             }
         }
 
-        /*[HttpGet("GetUserById/{id}")]
-        public async Task<IActionResult> GetUserById(int id)
+        [HttpGet("ListAllCategories")]
+        public async Task<IActionResult> ListAllCategories()
         {
-            var user = await _categoryService.GetUserByIdAsync(id);
+            var categories = await _categoryService.ListAllCategories();
 
-            if (user == null)
-                return NotFound(new { message = "Usuário não encontrado." });
+            if (categories == null)
+                return NotFound(new { message = "Categorias não encontradas." });
 
-            if (!user.IsActive)
-                return StatusCode(403, new { message = "Usuário desativado." });
+            return Ok(categories);
+        }
 
+        [HttpDelete("SoftDelete/{id}")]
+        public async Task<IActionResult> SoftDeleteUser(int id)
+        {
+            var result = await _categoryService.SoftDeleteCategoryAsync(id);
 
-            return Ok(user);
-        }*/
+            if (!result)
+                return NotFound(new { message = "Categoria não encontrada." });
+
+            return Ok(new { message = "Categoria desativada com sucesso." });
+        }
+
+        [HttpPut("Update")]
+        public async Task<IActionResult> UpdateCategory([FromBody] CategoryDto category)
+        {
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState);
+
+            try
+            {
+                var updatedCategory = await _categoryService.UpdateCategoryAsync(category);
+
+                if (updatedCategory == null)
+                    return NotFound(new { message = "Categoria não encontrada." });
+
+                return Ok(updatedCategory);
+            }
+            catch (InvalidOperationException ex)
+            {
+                return Conflict(new { message = ex.Message });
+            }
+            catch (UnauthorizedAccessException ex)
+            {
+                return StatusCode(403, new { message = ex.Message });
+            }
+        }
     }
 }
