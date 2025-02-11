@@ -49,5 +49,21 @@ namespace Back_FindIT.Models
 
         [ForeignKey("ItemId")]
         public virtual Item Item { get; set; } = null!;
+
+        public ItemHistory(int userId, Item item, ActionType actionType)
+        {
+            UserId = userId;
+            ActionType = actionType;
+            ItemId = item.Id;
+            ItemName = item.Name;
+            ItemDescription = item.Description;
+            ItemCreatedAt = item.CreatedAt;
+            ItemUpdatedAt = item.UpdatedAt;
+            ItemIsActive = item.IsActive;
+            ItemCategoryId = item.CategoryId;
+            ItemRegisteredBy = item.RegisteredBy;
+            ItemClaimedBy = item.ClaimedBy;
+            CreatedAt = DateTime.Now;
+        }
     }
 }
