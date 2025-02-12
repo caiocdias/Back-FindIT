@@ -2,6 +2,7 @@
 using Back_FindIT.Dtos.UserPermissionDtos;
 using Back_FindIT.Models;
 using Back_FindIT.Services;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Back_FindIT.Controllers
@@ -31,7 +32,7 @@ namespace Back_FindIT.Controllers
             }
         }
 
-
+        [Authorize]
         [HttpGet("GetPermissionById/{id}")]
         public async Task<IActionResult> GetPermissionById(int id)
         {
@@ -43,7 +44,7 @@ namespace Back_FindIT.Controllers
             return Ok(permission);
         }
 
-
+        [Authorize]
         [HttpPut("UpdatePermission/{id}")]
         public async Task<IActionResult> UpdatePermission(int id, [FromBody] PermissionRegisterDto dto)
         {
