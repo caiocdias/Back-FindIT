@@ -1,7 +1,6 @@
 ﻿using Back_FindIT.Dtos.UserPermissionDtos;
 using Back_FindIT.Services;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Back_FindIT.Controllers
