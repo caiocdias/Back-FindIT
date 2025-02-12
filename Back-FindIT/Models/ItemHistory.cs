@@ -50,6 +50,8 @@ namespace Back_FindIT.Models
         [ForeignKey("ItemId")]
         public virtual Item Item { get; set; } = null!;
 
+        public ItemHistory() { }
+
         public ItemHistory(int userId, Item item, ActionType actionType)
         {
             UserId = userId;
