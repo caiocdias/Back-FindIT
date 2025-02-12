@@ -1,8 +1,6 @@
-﻿using Back_FindIT.Models;
-using System.ComponentModel.DataAnnotations.Schema;
-using System.ComponentModel.DataAnnotations;
-using Back_FindIT.Dtos.CategoryDtos;
+﻿using Back_FindIT.Dtos.CategoryDtos;
 using Back_FindIT.Dtos.UserDtos;
+using Back_FindIT.Models;
 
 namespace Back_FindIT.Dtos.ItemDtos
 {
@@ -13,15 +11,40 @@ namespace Back_FindIT.Dtos.ItemDtos
         public string Name { get; set; } = string.Empty;
 
         public string? Description { get; set; }
+        public bool IsActive { get; set; }
 
-        public virtual CategoryDto Category { get; set; } = null!;
+        public CategoryDto Category { get; set; } = null!;
 
-        public virtual UserDto RegisteredUser { get; set; } = null!;
+        public UserDto RegisteredUser { get; set; } = null!;
 
-        public virtual UserDto ClaimedUser { get; set; } = null!;
+        public UserDto ClaimedUser { get; set; } = null!;
 
         public DateTime CreatedAt { get; set; }
 
         public DateTime UpdatedAt { get; set; }
+
+        public ItemDto(Item item)
+        {
+            Id = item.Id;
+            Name = item.Name;
+            Description = item.Description;
+            Category = new CategoryDto {
+                Id = item.Category.Id,
+                Name = item.Category.Name
+            };
+            RegisteredUser = new UserDto {
+                Id = item.RegisteredUser.Id,
+                Name = item.RegisteredUser.Name,
+                Email = item.RegisteredUser.Email
+            };
+            ClaimedUser = new UserDto {
+                Id = item.ClaimedUser.Id,
+                Name = item.ClaimedUser.Name,
+                Email = item.ClaimedUser.Email
+            };
+            IsActive = item.IsActive;
+            CreatedAt = item.CreatedAt;
+            UpdatedAt = item.UpdatedAt;
+        }
     }
 }
