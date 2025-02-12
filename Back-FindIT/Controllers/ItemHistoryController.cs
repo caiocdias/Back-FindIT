@@ -17,6 +17,7 @@ namespace Back_FindIT.Controllers
             _itemHistoryService = itemHistoryService;
         }
 
+        [HttpPost("AddItemHistory")]
         public async Task<IActionResult> AddItemHistory(ItemHistory itemHistory)
         {
             if (!ModelState.IsValid)
