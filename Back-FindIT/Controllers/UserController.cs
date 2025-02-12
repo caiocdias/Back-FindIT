@@ -1,6 +1,7 @@
 ﻿using Back_FindIT.Services;
 using Microsoft.AspNetCore.Mvc;
 using Back_FindIT.Dtos.UserDtos;
+using Microsoft.AspNetCore.Authorization;
 
 namespace Back_FindIT.Controllers
 {
@@ -9,10 +10,12 @@ namespace Back_FindIT.Controllers
     public class UserController : ControllerBase
     {
         private readonly UserService _userService;
+        private readonly JwtService _jwtService;
 
-        public UserController(UserService userService)
+        public UserController(UserService userService, JwtService jwtService)
         {
             _userService = userService;
+            _jwtService = jwtService;
         }
 
         [HttpPost("AddUser")]
@@ -32,6 +35,7 @@ namespace Back_FindIT.Controllers
             }
         }
 
+        [Authorize]
         [HttpGet("GetUserById/{id}")]
         public async Task<IActionResult> GetUserById(int id)
         {
@@ -47,6 +51,7 @@ namespace Back_FindIT.Controllers
             return Ok(user);
         }
 
+        [Authorize]
         [HttpGet("GetUserByEmail/{email}")]
         public async Task<IActionResult> GetUserByEmail(string email)
         {
@@ -62,6 +67,7 @@ namespace Back_FindIT.Controllers
             return Ok(user);
         }
 
+        [Authorize]
         [HttpGet("GetActiveUsers")]
         public async Task<IActionResult> GetUsers()
         {
@@ -81,6 +87,7 @@ namespace Back_FindIT.Controllers
             return Ok(new { message = "Usuário desativado com sucesso." });
         }
 
+        [Authorize]
         [HttpPut("Update/{id}")]
         public async Task<IActionResult> UpdateUser(int id, [FromBody] UserUpdateDto userDto)
         {
@@ -105,6 +112,21 @@ namespace Back_FindIT.Controllers
                 return StatusCode(403, new { message = ex.Message });
             }
 
+        }
+
+        [HttpPost("Login")]
+        public async Task<IActionResult> Login([FromBody] UserLoginDto userDto)
+        {
+            var user = await _userService.GetUserEntityByEmailAsync(userDto.Email);
+            if (user == null || !user.ValidatePassword(userDto.Password))
+                return Unauthorized(new { message = "E-mail ou senha inválidos" });
+
+            if (!user.IsActive)
+                return StatusCode(403, new { message = "Usuário desativado" });
+
+            var token = _jwtService.GenerateToken(user);
+
+            return Ok(new { token });
         }
     }
 }
