@@ -104,6 +104,31 @@ namespace Back_FindIT.Services
             return await _appDbContext.Users.FirstOrDefaultAsync(u => u.Email == email);
         }
 
+        public async Task<List<UserReturnDto>?> GetUserByNameAsync(string name)
+        {
+            var users = await _appDbContext.Users
+                .Include(u => u.UserPermissions)
+                    .ThenInclude(up => up.Permission)
+                .AsNoTracking()
+                .Where(u => EF.Functions.Like(u.Name, $"%{name}%") && u.IsActive)
+                .ToListAsync();
+
+            if (users == null || !users.Any())
+                return null;
+
+            return users.Select(user => new UserReturnDto
+            {
+                Id = user.Id,
+                Name = user.Name,
+                Email = user.Email,
+                Cpf = user.Cpf,
+                IsActive = user.IsActive,
+                CreatedAt = user.CreatedAt,
+                UpdatedAt = user.UpdatedAt,
+                UserPermissions = user.UserPermissions
+            }).ToList();
+        }
+
 
         public async Task<ICollection<UserReturnDto>> GetUsersAsync()
         {
