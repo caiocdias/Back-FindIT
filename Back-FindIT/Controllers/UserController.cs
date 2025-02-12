@@ -68,6 +68,18 @@ namespace Back_FindIT.Controllers
         }
 
         [Authorize]
+        [HttpGet("GetUserByName /{name}")]
+        public async Task<IActionResult> GetUserByName(string name)
+        {
+            var users = await _userService.GetUserByNameAsync(name);
+
+            if (users == null)
+                return NotFound(new { message = "Nenhum usuário encontrado" });
+
+            return Ok(users);
+        }
+
+        [Authorize]
         [HttpGet("GetActiveUsers")]
         public async Task<IActionResult> GetUsers()
         {
@@ -76,6 +88,7 @@ namespace Back_FindIT.Controllers
             return Ok(users);
         }
 
+        [Authorize]
         [HttpDelete("SoftDelete/{id}")]
         public async Task<IActionResult> SoftDeleteUser(int id)
         {
