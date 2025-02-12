@@ -18,11 +18,9 @@ namespace Back_FindIT.Services
 
         public async Task<UserReturnDto?> AddUserAsync(UserRegisterDto userDto)
         {
-            // Verifica se o e-mail já existe
             if (await _appDbContext.Users.AnyAsync(u => u.Email == userDto.Email))
                 throw new InvalidOperationException("Já existe um usuário cadastrado com esse e-mail.");
 
-            // Verifica se o CPF já existe
             if (await _appDbContext.Users.AnyAsync(u => u.Cpf == userDto.Cpf))
                 throw new InvalidOperationException("Já existe um usuário cadastrado com esse CPF.");
 
@@ -100,6 +98,12 @@ namespace Back_FindIT.Services
                 UserPermissions = user.UserPermissions
             };
         }
+
+        public async Task<User?> GetUserEntityByEmailAsync(string email)
+        {
+            return await _appDbContext.Users.FirstOrDefaultAsync(u => u.Email == email);
+        }
+
 
         public async Task<ICollection<UserReturnDto>> GetUsersAsync()
         {
