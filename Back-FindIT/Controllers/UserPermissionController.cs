@@ -1,5 +1,6 @@
 ﻿using Back_FindIT.Dtos.UserPermissionDtos;
 using Back_FindIT.Services;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
@@ -16,6 +17,7 @@ namespace Back_FindIT.Controllers
             _userPermissionService = userPermissionService;
         }
 
+        [Authorize]
         [HttpPost("AddUserPermission")]
         public async Task<IActionResult> AddUserPermission([FromBody] UserPermissionDto userPermissionDto)
         {
@@ -33,6 +35,7 @@ namespace Back_FindIT.Controllers
             }
         }
 
+        [Authorize]
         [HttpDelete("RemoveUserPermission")]
         public async Task<IActionResult> RemoveUserPermission([FromBody] UserPermissionDto userPermissionDto)
         {
@@ -51,6 +54,7 @@ namespace Back_FindIT.Controllers
             }
         }
 
+        [Authorize]
         [HttpGet("GetPermissionsByUser/{userId}")]
         public async Task<IActionResult> GetPermissionsByUser(int userId)
         {
@@ -62,6 +66,7 @@ namespace Back_FindIT.Controllers
             return Ok(permissions);
         }
 
+        [Authorize]
         [HttpGet("GetUsersByPermission/{permissionId}")]
         public async Task<IActionResult> GetUsersByPermission(int permissionId)
         {
