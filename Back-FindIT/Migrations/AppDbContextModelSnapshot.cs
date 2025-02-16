@@ -73,8 +73,8 @@ namespace Back_FindIT.Migrations
                     MySqlPropertyBuilderExtensions.UseMySqlComputedColumn(b.Property<DateTime>("CreatedAt"));
 
                     b.Property<string>("Description")
-                        .HasMaxLength(100)
-                        .HasColumnType("varchar(100)");
+                        .HasMaxLength(1000)
+                        .HasColumnType("varchar(1000)");
 
                     b.Property<bool>("IsActive")
                         .HasColumnType("tinyint(1)");
