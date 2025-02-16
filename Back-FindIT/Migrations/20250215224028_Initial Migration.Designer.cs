@@ -12,7 +12,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Back_FindIT.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20250212015451_Initial Migration")]
+    [Migration("20250215224028_Initial Migration")]
     partial class InitialMigration
     {
         /// <inheritdoc />
@@ -76,8 +76,8 @@ namespace Back_FindIT.Migrations
                     MySqlPropertyBuilderExtensions.UseMySqlComputedColumn(b.Property<DateTime>("CreatedAt"));
 
                     b.Property<string>("Description")
-                        .HasMaxLength(100)
-                        .HasColumnType("varchar(100)");
+                        .HasMaxLength(1000)
+                        .HasColumnType("varchar(1000)");
 
                     b.Property<bool>("IsActive")
                         .HasColumnType("tinyint(1)");

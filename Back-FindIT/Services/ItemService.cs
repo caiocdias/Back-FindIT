@@ -5,6 +5,8 @@ using Back_FindIT.Dtos.ItemDtos;
 using Back_FindIT.Dtos.UserDtos;
 using Back_FindIT.Models;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.ML;
+using Microsoft.ML.Data;
 
 namespace Back_FindIT.Services
 {
@@ -16,19 +18,16 @@ namespace Back_FindIT.Services
             _appDbContext = appDbContext;
         }
 
-        public async Task<ItemDto?> AddItemAsync(ItemDto itemDto)
+        public async Task<ItemRegisterDto?> AddItemAsync(ItemRegisterDto itemRegisterDto)
         {
-            // Verifica se 
-            /*if (await _appDbContext.Items.AnyAsync(u => u.Name == categoryDto.Name))
-                throw new InvalidOperationException("Já existe uma categoria cadastrada com esse nome!");*/
-            int userId = 0;
             Item item = new Item
             {
-                Name = itemDto.Name,
-                Description = itemDto.Description,
+                Name = itemRegisterDto.Name,
+                Description = itemRegisterDto.Description,
                 IsActive = true,
-                CategoryId = itemDto.Category.Id,
-                RegisteredBy = itemDto.RegisteredUser.Id
+                CategoryId = itemRegisterDto.Category.Id,
+                RegisteredBy = itemRegisterDto.RegisteredUser.Id,
+                ClaimedBy = itemRegisterDto.ClaimedUser.Id
             };
 
             item.SetUpdatedAt();
@@ -36,14 +35,14 @@ namespace Back_FindIT.Services
             _appDbContext.Items.Add(item);
             await _appDbContext.SaveChangesAsync();
 
-            itemDto.Id = item.Id;
-
-            return itemDto;
+            return itemRegisterDto;
         }
         public async Task<ItemDto?> GetItemByIdAsync(int id)
         {
             var item = await _appDbContext.Items
                 .Include(i => i.Category)
+                .Include(i => i.RegisteredUser)
+                .Include(i => i.ClaimedUser)
                 .AsNoTracking()
                 .FirstOrDefaultAsync(i => i.Id == id);
 
@@ -146,5 +145,79 @@ namespace Back_FindIT.Services
 
             return new ItemDto(item);
         }
+
+        public async Task<List<ItemDto>> SearchItemsAsync(string query)
+        {
+            var items = await _appDbContext.Items
+                .Include(i => i.Category)   
+                .Include(i => i.RegisteredUser) 
+                .Include(i => i.ClaimedUser)    
+                .AsNoTracking()
+                .ToListAsync();
+
+
+
+            if (!items.Any())
+                return new List<ItemDto>();
+
+            // Criar a lista de descrições dos itens
+            var documents = items.Select(i => i.Description ?? "").ToList();
+
+            // Criar o pipeline TF-IDF
+            var mlContext = new MLContext();
+            var data = mlContext.Data.LoadFromEnumerable(documents.Select(d => new InputText { Text = d }));
+
+            var pipeline = mlContext.Transforms.Text.FeaturizeText("Features", nameof(InputText.Text));
+            var model = pipeline.Fit(data);
+            var transformedData = model.Transform(data);
+
+            var featureColumn = transformedData.GetColumn<float[]>("Features").ToArray();
+
+            // Transformar a consulta em vetor TF-IDF
+            var queryVector = model.Transform(mlContext.Data.LoadFromEnumerable(new[] { new InputText { Text = query } }))
+                                   .GetColumn<float[]>("Features")
+                                   .FirstOrDefault();
+
+            if (queryVector == null) return new List<ItemDto>();
+
+            // Calcular similaridade do cosseno
+            var similarities = featureColumn.Select((vector, index) => new
+            {
+                Item = items[index],
+                Similarity = CosineSimilarity(queryVector, vector)
+            })
+            .OrderByDescending(x => x.Similarity)
+            .Take(10) // Retorna os 10 melhores resultados
+            .Select(x => new ItemDto(x.Item))
+            .ToList();
+
+            return similarities;
+        }
+
+        // Método auxiliar para calcular similaridade do cosseno
+        private static float CosineSimilarity(float[] vecA, float[] vecB)
+        {
+            float dotProduct = vecA.Zip(vecB, (a, b) => a * b).Sum();
+            float magnitudeA = (float)Math.Sqrt(vecA.Sum(a => a * a));
+            float magnitudeB = (float)Math.Sqrt(vecB.Sum(b => b * b));
+            return magnitudeA * magnitudeB == 0 ? 0 : dotProduct / (magnitudeA * magnitudeB);
+        }
+
+        private class InputText
+        {
+            public string Text { get; set; }
+        }
+
+        public async Task<List<ItemDto>> GetSimilarItemsAsync(int itemId)
+        {
+            var items = await _appDbContext.Items.AsNoTracking().ToListAsync();
+            var targetItem = items.FirstOrDefault(i => i.Id == itemId);
+
+            if (targetItem == null)
+                return new List<ItemDto>();
+
+            return await SearchItemsAsync(targetItem.Description);
+        }
+
     }
 }
