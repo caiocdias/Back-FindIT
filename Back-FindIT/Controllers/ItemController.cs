@@ -18,7 +18,7 @@ namespace Back_FindIT.Controllers
         }
 
         [HttpPost("AddItem")]
-        public async Task<IActionResult> AddItem([FromBody] ItemDto itemDto)
+        public async Task<IActionResult> AddItem([FromBody] ItemRegisterDto itemRegisterDto)
         {
             
             if (!ModelState.IsValid)
@@ -26,7 +26,7 @@ namespace Back_FindIT.Controllers
 
             try
             {
-                var item = await _itemService.AddItemAsync(itemDto);
+                var item = await _itemService.AddItemAsync(itemRegisterDto);
                 return Ok(item);
             }
             catch (InvalidOperationException ex)
@@ -119,5 +119,29 @@ namespace Back_FindIT.Controllers
             }
 
         }
+
+        [HttpGet("Search/{query}")]
+        public async Task<IActionResult> SearchItems(string query)
+        {
+            var items = await _itemService.SearchItemsAsync(query);
+
+            if (items == null || !items.Any())
+                return NotFound(new { message = "Nenhum item encontrado." });
+
+            return Ok(items);
+        }
+
+
+        [HttpGet("GetSimilarItems/{itemId}")]
+        public async Task<IActionResult> GetSimilarItems(int itemId)
+        {
+            var items = await _itemService.GetSimilarItemsAsync(itemId);
+
+            if (items == null || !items.Any())
+                return NotFound(new { message = "Nenhum item similar encontrado." });
+
+            return Ok(items);
+        }
+
     }
 }
