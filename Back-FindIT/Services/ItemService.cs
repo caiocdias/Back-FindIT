@@ -210,7 +210,7 @@ namespace Back_FindIT.Services
 
         public async Task<List<ItemDto>> GetSimilarItemsAsync(int itemId)
         {
-            var items = await _appDbContext.Items.AsNoTracking().ToListAsync();
+            var items = await _appDbContext.Items.AsNoTracking().Where(i => i.Id != itemId).ToListAsync();
             var targetItem = items.FirstOrDefault(i => i.Id == itemId);
 
             if (targetItem == null)
