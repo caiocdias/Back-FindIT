@@ -210,14 +210,22 @@ namespace Back_FindIT.Services
 
         public async Task<List<ItemDto>> GetSimilarItemsAsync(int itemId)
         {
-            var items = await _appDbContext.Items.AsNoTracking().Where(i => i.Id != itemId).ToListAsync();
-            var targetItem = items.FirstOrDefault(i => i.Id == itemId);
+            var targetItem = await _appDbContext.Items
+                .AsNoTracking()
+                .Where(i => i.Id == itemId)
+                .FirstOrDefaultAsync();
 
             if (targetItem == null)
                 return new List<ItemDto>();
 
-            return await SearchItemsAsync(targetItem.Description);
+            var similarItems = await SearchItemsAsync(targetItem.Description);
+
+            return similarItems
+                .Where(i => i.Id != itemId)
+                .Take(3)
+                .ToList();
         }
+
 
     }
 }
