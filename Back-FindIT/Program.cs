@@ -76,6 +76,26 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
         };
     });
 
+/*builder.Services.AddCors(options =>
+{
+    options.AddPolicy("AllowBlazorClient", policy =>
+    {
+        policy.WithOrigins("https://localhost:7076", "https://localhost:44340", "https://localhost:7046/") // Adicione o endereço do front-end aqui
+              .AllowAnyHeader()
+              .AllowAnyMethod();
+    });
+});*/
+
+builder.Services.AddCors(options =>
+{
+    options.AddDefaultPolicy(policy =>
+    {
+        policy.AllowAnyOrigin()
+              .AllowAnyHeader()
+              .AllowAnyMethod();
+    });
+});
+
 builder.Services.AddAuthorization();
 
 // Configurar conexão com o banco de dados
@@ -84,6 +104,9 @@ builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseMySql(connectionString, ServerVersion.AutoDetect(connectionString)));
 
 var app = builder.Build();
+
+//app.UseCors("AllowBlazorClient");
+app.UseCors();
 
 // Configurar o pipeline de requisições HTTP
 if (app.Environment.IsDevelopment())
