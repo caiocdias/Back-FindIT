@@ -161,10 +161,8 @@ namespace Back_FindIT.Services
             if (!items.Any())
                 return new List<ItemDto>();
 
-            // Criar a lista de descrições dos itens
             var documents = items.Select(i => i.Description ?? "").ToList();
 
-            // Criar o pipeline TF-IDF
             var mlContext = new MLContext();
             var data = mlContext.Data.LoadFromEnumerable(documents.Select(d => new InputText { Text = d }));
 
@@ -174,28 +172,25 @@ namespace Back_FindIT.Services
 
             var featureColumn = transformedData.GetColumn<float[]>("Features").ToArray();
 
-            // Transformar a consulta em vetor TF-IDF
             var queryVector = model.Transform(mlContext.Data.LoadFromEnumerable(new[] { new InputText { Text = query } }))
                                    .GetColumn<float[]>("Features")
                                    .FirstOrDefault();
 
             if (queryVector == null) return new List<ItemDto>();
 
-            // Calcular similaridade do cosseno
             var similarities = featureColumn.Select((vector, index) => new
             {
                 Item = items[index],
                 Similarity = CosineSimilarity(queryVector, vector)
             })
             .OrderByDescending(x => x.Similarity)
-            .Take(10) // Retorna os 10 melhores resultados
+            .Take(9) 
             .Select(x => new ItemDto(x.Item))
             .ToList();
 
             return similarities;
         }
 
-        // Método auxiliar para calcular similaridade do cosseno
         private static float CosineSimilarity(float[] vecA, float[] vecB)
         {
             float dotProduct = vecA.Zip(vecB, (a, b) => a * b).Sum();
@@ -207,24 +202,6 @@ namespace Back_FindIT.Services
         private class InputText
         {
             public string Text { get; set; }
-        }
-
-        public async Task<List<ItemDto>> GetSimilarItemsAsync(int itemId)
-        {
-            var targetItem = await _appDbContext.Items
-                .AsNoTracking()
-                .Where(i => i.Id == itemId)
-                .FirstOrDefaultAsync();
-
-            if (targetItem == null)
-                return new List<ItemDto>();
-
-            var similarItems = await SearchItemsAsync(targetItem.Description);
-
-            return similarItems
-                .Where(i => i.Id != itemId)
-                .Take(3)
-                .ToList();
         }
 
         public async Task<List<ItemDto>> FindSimilarItemsAsync(int selectedItemId, int numberOfClusters = 5)
