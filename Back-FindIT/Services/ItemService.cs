@@ -7,6 +7,7 @@ using Back_FindIT.Models;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.ML;
 using Microsoft.ML.Data;
+using Microsoft.ML.Trainers;
 
 namespace Back_FindIT.Services
 {
@@ -224,6 +225,64 @@ namespace Back_FindIT.Services
                 .Where(i => i.Id != itemId)
                 .Take(3)
                 .ToList();
+        }
+
+        public async Task<List<ItemDto>> FindSimilarItemsAsync(int selectedItemId, int numberOfClusters = 5)
+        {
+            var items = await _appDbContext.Items
+                .Include(i => i.Category)
+                .Include(i => i.RegisteredUser)
+                .Include(i => i.ClaimedUser)
+                .AsNoTracking()
+                .ToListAsync();
+
+            if (!items.Any())
+                return new List<ItemDto>();
+
+            var selectedItem = items.FirstOrDefault(i => i.Id == selectedItemId);
+            if (selectedItem == null)
+                return new List<ItemDto>();
+
+            var documents = items.Select(i => i.Description ?? "").ToList();
+
+            var mlContext = new MLContext();
+            var data = mlContext.Data.LoadFromEnumerable(documents.Select(d => new InputText { Text = d }));
+
+            var pipeline = mlContext.Transforms.Text.FeaturizeText("Features", nameof(InputText.Text));
+            var model = pipeline.Fit(data);
+            var transformedData = model.Transform(data);
+
+            var options = new KMeansTrainer.Options
+            {
+                NumberOfClusters = numberOfClusters, 
+                FeatureColumnName = "Features",
+                MaximumNumberOfIterations = 100 
+            };
+
+            var trainer = mlContext.Clustering.Trainers.KMeans(options);
+            var clusteringModel = trainer.Fit(transformedData);
+
+            var predictions = clusteringModel.Transform(transformedData);
+            var clusters = predictions.GetColumn<uint>("PredictedLabel").ToArray(); 
+
+            var selectedItemIndex = items.IndexOf(selectedItem);
+            var selectedCluster = clusters[selectedItemIndex];
+
+            var similarItems = items.Select((item, index) => new
+            {
+                Item = item,
+                Cluster = clusters[index],
+                Similarity = CosineSimilarity(
+                    transformedData.GetColumn<float[]>("Features").ElementAt(selectedItemIndex),
+                    transformedData.GetColumn<float[]>("Features").ElementAt(index))
+            })
+            .Where(x => x.Cluster == selectedCluster && x.Item.Id != selectedItemId)
+            .OrderByDescending(x => x.Similarity) 
+            .Take(3)
+            .Select(x => new ItemDto(x.Item))
+            .ToList();
+
+            return similarItems;
         }
 
 

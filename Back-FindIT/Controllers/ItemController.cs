@@ -135,7 +135,7 @@ namespace Back_FindIT.Controllers
         [HttpGet("GetSimilarItems/{itemId}")]
         public async Task<IActionResult> GetSimilarItems(int itemId)
         {
-            var items = await _itemService.GetSimilarItemsAsync(itemId);
+            var items = await _itemService.FindSimilarItemsAsync(itemId);
 
             if (items == null || !items.Any())
                 return NotFound(new { message = "Nenhum item similar encontrado." });
